@@ -13,6 +13,7 @@ class Database{
         if(!$this->conn){
         $this->conn = new mysqli($this->db_host, $this->db_username, $this->db_password, $this->db_name);
         
+        
         if ($this->conn->connect_error) {
             //die("Connection failed: " . $this->conn->connect_error);
             array_push($this->result, $this->conn->connect_error);
@@ -24,7 +25,41 @@ class Database{
 
     }
 
-    public function insert(){
+    private function tableExists($table){
+        $sql = "SHOW TABLES FROM $this->db_name LIKE '$table'";
+        $tableInDb = $this->conn->query($sql);
+        if($tableInDb){
+            if($tableInDb->num_rows == 1){
+                return true;
+            }else{
+                array_push($this->result, $table." does not exist in this database");
+                return false;
+            }
+        }
+    }
+
+    public function getResult(){
+        $val = $this->result;
+        $this->result = array();
+        return $val;
+    }
+
+    public function insert( $table, $params = array()){
+        if($this->tableExists($table)){
+           // print_r($params);
+            $table_columns = implode(',', array_keys($params));
+            $table_values = implode("','", array_values($params));
+            $sql = "INSERT INTO $table ($table_columns) VALUES ('$table_values')";
+            if($this->conn->query($sql)){
+                array_push($this->result, $this->conn->insert_id);
+                return true;
+            }else{
+                array_push($this->result, $this->conn->error);
+                return false;
+            }
+        }else{
+            return false;
+        }
         
     }
 
