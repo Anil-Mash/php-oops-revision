@@ -63,6 +63,29 @@ class Database{
         
     }
 
+    public function update($table, $params = array(), $where = null){
+        if($this->tableExists($table)){
+            $args = array();
+            foreach($params as $key => $value){
+                $args[] = "$key='$value'";
+            }
+            $sql = "UPDATE $table SET ". implode(', ', $args);
+            if($where != null){
+                $sql .= " WHERE $where";
+            }
+            if($this->conn->query($sql)){
+                array_push($this->result, $this->conn->affected_rows);
+                return true;
+            }else{
+                array_push($this->result, $this->conn->error);
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+    }
+
     public function __destruct()
     {
         if($this->conn){
