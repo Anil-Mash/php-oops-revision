@@ -86,6 +86,24 @@ class Database{
 
     }
 
+    public function delete($table,  $where = null){
+        if($this->tableExists($table)){
+            $sql = "DELETE FROM $table";
+            if($where != null){
+                $sql .= " WHERE $where";
+            }
+            if($this->conn->query($sql)){
+                array_push($this->result, $this->conn->affected_rows);
+                return true;
+            }else{
+                array_push($this->result, $this->conn->error);
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
     public function __destruct()
     {
         if($this->conn){
