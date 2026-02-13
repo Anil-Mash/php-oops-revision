@@ -104,6 +104,46 @@ class Database{
         }
     }
 
+    public function select($table, $cols = "*", $join=null,  $where = null, $order = null, $limit = null){
+
+        if($this->tableExists($table)){
+            $sql = "SELECT $cols FROM $table";
+            if($join != null){
+                $sql .= " JOIN $join";
+            }
+            if($where != null){
+                $sql .= " WHERE $where";
+            }
+            if($order != null){
+                $sql .= " ORDER BY $order";
+            }
+            if($limit != null){
+                $sql .= " LIMIT 0, $limit";
+            }
+            $query = $this->conn->query($sql);
+            if($query){
+                $this->result = $query->fetch_all(MYSQLI_ASSOC);
+                return true;
+            }else{
+                array_push($this->result, $this->conn->error);
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+    public function rawQuery($sql){
+        $query = $this->conn->query($sql);
+        if($query){
+            $this->result = $query->fetch_all(MYSQLI_ASSOC);
+            return true;
+        }else{
+            array_push($this->result, $this->conn->error);
+            return false;
+        }
+    }
+
     public function __destruct()
     {
         if($this->conn){
